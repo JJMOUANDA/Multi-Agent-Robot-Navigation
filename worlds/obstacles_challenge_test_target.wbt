@@ -1,0 +1,28 @@
+#VRML_SIM R2022a utf8
+WorldInfo {
+  basicTimeStep 16
+}
+Viewpoint {
+  orientation 0.20670241696832628 0.7628575115780104 -0.6126357219820421 0.8328215086638225
+  position -2.9941452248947367 1.291209932664732 2.293569898900832
+}
+Background {
+  skyColor [
+    0.4 0.7 1
+  ]
+}
+RectangleArena {
+  rotation 0 1 0 0
+  floorSize 2 2
+  floorAppearance Parquetry {
+    type "dark strip"
+  }
+}
+DEF target Cible {
+  translation 0.719489 -0.774092 0.06
+  rotation 0 1 0 4.692820414042842e-06
+}
+DEF epuck0 E-puckCameraRecognition {
+  rotation 0 0 -1 -1.3089953071795861
+  controller "AutonomyTwo"
+}
