@@ -21,6 +21,7 @@ public class AutonomyTwo extends Robot {
 	private LED[] leds;
 	
 	
+	
 	public AutonomyTwo() {
 		timeStep = 128;  // set the control time step
 
@@ -101,7 +102,22 @@ public class AutonomyTwo extends Robot {
 			leds[num].set(on ? 1 : 0);
 		}
 	}
+	/**
+	 * Move towards the target and stop in front of it
+	 * @param target: the CameraRecognitionObject representing the target
+	 */
+	protected void moveToTarget(CameraRecognitionObject target) {
+		double[] position = target.getPosition(); // Get the position of the target
+		double targetDistance = Math.sqrt(position[0] * position[0] + position[2] * position[2]); // Calculate the distance to the target using x and z coordinates
+		double stopDistance = 0.1; // Distance at which the robot should stop in front of the target
 
+		if (targetDistance > stopDistance) {
+			move(50, 50); // Move forward
+		} else {
+			System.out.println("Target reached");
+			move(0, 0); // Stop
+		}
+	}
 	/**
 	 * 
 	 * @return an empty list if nothing is detected by the camera, 
@@ -162,17 +178,18 @@ public class AutonomyTwo extends Robot {
                 
                 switch (currentState) {
                     case "Forward":
+						System.out.println("Forward");
                         // Check if there's an obstacle on the left (distances[5] or distances[6])
-                        if (distances[5] > 80 || distances[6] > 80) {
-                            currentState = "TurnRight";
+                        if (target != null) {
+							currentState = "MoveToTarget";
                         } 
                         // Check if there's an obstacle on the right (distances[1] or distances[2])
                         else if (distances[1] > 80 || distances[2] > 80) {
                             currentState = "TurnLeft";
                         } 
                         // Check if the target is detected
-                        else if (target != null) {
-                            currentState = "MoveToTarget";
+                        else if (distances[5] > 80 || distances[6] > 80) {
+                            currentState = "TurnRight";
                         } 
                         // Otherwise, continue moving forward
                         else {
@@ -181,6 +198,7 @@ public class AutonomyTwo extends Robot {
                         break;
         
                     case "TurnLeft":
+					System.out.println("TurnLeft");
                         // Turn left to avoid obstacle on the right
                         move(-50, 50);  // Left wheel moves backward, right wheel moves forward
                         // If the path is clear in front (distances[0] and distances[7]), go back to Forward
@@ -190,6 +208,7 @@ public class AutonomyTwo extends Robot {
                         break;
         
                     case "TurnRight":
+					System.out.println("TurnRight");
                         // Turn right to avoid obstacle on the left
                         move(50, -50);  // Right wheel moves backward, left wheel moves forward
                         // If the path is clear in front (distances[0] and distances[7]), go back to Forward
@@ -198,14 +217,26 @@ public class AutonomyTwo extends Robot {
                         }
                         break;
         
-                    case "MoveToTarget":
-                        // Move towards the target when detected
-                        move(60, 60);  // Move faster towards the target
-                        // If the target is no longer detected, go back to Forward
-                        if (target == null) {
-                            currentState = "Forward";
-                        }
-                        break;
+					case "MoveToTarget":
+					System.out.println("MoveToTarget");
+						
+						// Move towards the target when detected
+						if (target != null) {
+							moveToTarget(target);
+						} else {
+							currentState = "Forward";
+						}
+						// If the target is no longer detected, go back to Forward
+						if (target == null) {
+							currentState = "Forward";
+						}
+						// Check for obstacles and transition to the appropriate state
+						if (distances[1] > 80 || distances[2] > 80) {
+							currentState = "TurnLeft";
+						} else if (distances[5] > 80 || distances[6] > 80) {
+							currentState = "TurnRight";
+						}
+						break;
                 }
             }
         }
